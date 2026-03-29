@@ -1,3 +1,4 @@
+use herogrep::search;
 use std::{env, error::Error, fs, process};
 
 fn main() {
@@ -16,7 +17,10 @@ fn main() {
 }
 fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(&config.file_path)?;
-    println!("With text:\n{contents}");
+
+    for line in search(&config.query, &contents) {
+        println!("{line}");
+    }
     Ok(())
 }
 struct Config {

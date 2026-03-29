@@ -4,14 +4,14 @@ use std::{env, error::Error, fs, process};
 fn main() {
     let args: Vec<String> = env::args().collect();
     let config = Config::build(&args).unwrap_or_else(|error| {
-        println!("Problem parsing arguments: \n{error}");
+        eprintln!("Problem parsing arguments: \n{error}");
         process::exit(1);
     });
 
     let (query, file_path) = (&config.query, &config.file_path);
     println!("In file {file_path} looking for {query}");
     if let Err(e) = run(config) {
-        println!("Application error: {e}");
+        eprintln!("Application error: {e}");
         process::exit(1);
     }
 }

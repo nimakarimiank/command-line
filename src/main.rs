@@ -2,8 +2,7 @@ use herogrep::{search, search_case_insensitive};
 use std::{env, error::Error, fs, process};
 
 fn main() {
-    let args: Vec<String> = env::args().collect();
-    let config = Config::build(&args).unwrap_or_else(|error| {
+    let config = Config::build(env::args()).unwrap_or_else(|error| {
         eprintln!("Problem parsing arguments: \n{error}");
         process::exit(1);
     });
@@ -35,23 +34,21 @@ struct Config {
     pub ignore_case: bool,
 }
 impl Config {
-    fn build(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err(
-                "Not enough arguments provided.\n\tUsage: cargo run -- <query> <file_path>",
-            );
-        }
-        Ok(Config::new(args))
-    }
-
-    fn new(args: &[String]) -> Config {
-        let query = args[1].clone();
-        let file_path = args[2].clone();
+    fn build(mut args: impl Iterator<Item = String>) -> Result<Config, &'static str> {
+        args.next(); //Ignore application path name /C/Y/DA/executable
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a query string"),
+        };
+        let file_path = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a file path"),
+        };
         let ignore_case = env::var("IGNORECASE").is_ok();
-        Config {
+        Ok(Config {
             query,
             file_path,
             ignore_case,
-        }
+        })
     }
 }
